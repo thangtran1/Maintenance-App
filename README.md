@@ -1,6 +1,6 @@
 <div align="center">
   <br>
-  <img src="./src/assets/images/logo.png" height="120" alt="TVT Admin Logo" />
+  <img src="./src/assets/logo.png" height="120" alt="TVT Admin Logo" />
   <h2>🛠️ TVT Admin - Maintenance App</h2>
   <p><strong>Ứng dụng hiển thị chế độ bảo trì hệ thống</strong></p>
 </div>
