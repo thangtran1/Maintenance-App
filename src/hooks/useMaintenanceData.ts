@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import { MaintenanceData, MaintenanceResponse } from "@/types/maintenance";
-import { maintenanceConfig, maintenanceFallbackData } from "@/config/maintenance.config";
+import {
+  maintenanceConfig,
+  maintenanceFallbackData,
+} from "@/config/maintenance.config";
 
 export const useMaintenanceData = () => {
   const [maintenanceData, setMaintenanceData] =
