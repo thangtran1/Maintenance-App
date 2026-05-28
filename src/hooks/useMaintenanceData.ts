@@ -14,9 +14,8 @@ export const useMaintenanceData = () => {
   const [isSystemOperational, setIsSystemOperational] = useState(false);
   const endTimeoutRef = useRef<number | null>(null);
 
-  const fetchMaintenanceData = useCallback(async () => {
-    setIsLoading(true);
-    setRefreshData(false);
+  const fetchMaintenanceData = useCallback(async (isSilent = false) => {
+    if (!isSilent) setIsLoading(true);
     try {
       const response = await axios.get<MaintenanceResponse>(
         `${maintenanceConfig.backendUrl}/maintenance/current-status`,
@@ -27,48 +26,39 @@ export const useMaintenanceData = () => {
         const { isUnderMaintenance, maintenance, estimatedDuration } =
           response.data.data;
 
-        if (isUnderMaintenance && maintenance && estimatedDuration) {
+        if (isUnderMaintenance && maintenance) {
           setIsSystemOperational(false);
           setMaintenanceData(maintenance);
           setEstimatedDuration(estimatedDuration);
-
-          const endTime = new Date(maintenance.endTime).getTime();
-          const now = Date.now();
-          const msUntilEnd = endTime - now;
-
-          if (msUntilEnd > 0) {
-            setTimeout(() => {
-              window.location.href = maintenanceConfig.mainAppUrl;
-            }, msUntilEnd);
-          } else {
-            window.location.href = maintenanceConfig.mainAppUrl;
-          }
         } else {
           setIsSystemOperational(true);
           setMaintenanceData(null);
           setEstimatedDuration(null);
-
-          setTimeout(() => {
-            window.location.href = maintenanceConfig.mainAppUrl;
-          }, maintenanceConfig.redirectDelay);
         }
       }
     } catch (err) {
+      // Khi backend lỗi/sập, coi như đang bảo trì với dữ liệu fallback
       setIsSystemOperational(false);
       setMaintenanceData(maintenanceFallbackData);
       setEstimatedDuration(null);
     } finally {
-      setIsLoading(false);
+      if (!isSilent) setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchMaintenanceData();
+    // Gọi lần đầu
+    fetchMaintenanceData(false);
+
+    // Setup polling định kỳ mỗi 5 giây để kiểm tra khi nào bảo trì kết thúc
+    const interval = setInterval(() => {
+      fetchMaintenanceData(true);
+    }, 5000);
 
     return () => {
-      if (endTimeoutRef.current) clearTimeout(endTimeoutRef.current);
+      clearInterval(interval);
     };
-  }, [fetchMaintenanceData, refreshData]);
+  }, [fetchMaintenanceData]);
 
   return {
     refreshData: async () => {
