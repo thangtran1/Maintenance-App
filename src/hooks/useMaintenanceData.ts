@@ -1,7 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { MaintenanceData, MaintenanceResponse } from "@/types/maintenance";
-import { maintenanceConfig, maintenanceFallbackData } from "@/config/maintenance.config";
+import {
+  maintenanceConfig,
+  maintenanceFallbackData,
+} from "@/config/maintenance.config";
 
 export const useMaintenanceData = () => {
   const [maintenanceData, setMaintenanceData] =
@@ -9,10 +12,8 @@ export const useMaintenanceData = () => {
   const [estimatedDuration, setEstimatedDuration] = useState<number | null>(
     null
   );
-  const [refreshData, setRefreshData] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSystemOperational, setIsSystemOperational] = useState(false);
-  const endTimeoutRef = useRef<number | null>(null);
 
   const fetchMaintenanceData = useCallback(async (isSilent = false) => {
     if (!isSilent) setIsLoading(true);
